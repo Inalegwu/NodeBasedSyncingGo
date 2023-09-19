@@ -26,7 +26,10 @@ func New() Node {
 	}
 }
 
-func (n *Node) HandleStream() {
+func (n *Node) HandleStream(conn net.Conn) {
+	log.Printf("Node connected")
+
+	defer conn.Close()
 }
 
 func (n *Node) handleMessage(message message.Message) {
@@ -42,10 +45,10 @@ func (n *Node) sendMessage(message_type int, receiver_id uuid.UUID) {
 }
 
 func (n *Node) AsServer() {
+	log.Printf("Server Node with id %s started", n.Id)
 	conn, err := net.Listen("tcp", "127.0.0.1:8080")
-	if err != nil {
-		log.Fatal(err)
-	}
+
+	n.handleError(err)
 
 	server, _ := conn.Accept()
 
@@ -57,10 +60,18 @@ func (n *Node) AsServer() {
 }
 
 func (n *Node) AsClient() {
+	log.Printf("Client Node with id %s started", n.Id)
 	conn, err := net.Dial("tcp", "127.0.0.1:8080")
-	if err != nil {
-		fmt.Println("Error : ", err)
-	}
+
+	n.handleError(err)
+
+	defer conn.Close()
 
 	fmt.Println(conn)
+}
+
+func (n *Node) handleError(err error) {
+	if err != nil {
+		log.Println(err.Error())
+	}
 }
