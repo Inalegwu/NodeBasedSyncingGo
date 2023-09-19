@@ -3,6 +3,8 @@ package message
 import (
 	"encoding/json"
 	"fmt"
+
+	"github.com/google/uuid"
 )
 
 const (
@@ -13,15 +15,15 @@ const (
 )
 
 type Message struct {
-	id          string
-	sender_id   string
-	receiver_id string
+	id          uuid.UUID
+	sender_id   uuid.UUID
+	receiver_id uuid.UUID
 	messageType int
 }
 
-func New(sender_id string, receiver_id string, message_type int) Message {
+func New(sender_id uuid.UUID, receiver_id uuid.UUID, message_type int) Message {
 	return Message{
-		id:          "1",
+		id:          uuid.New(),
 		sender_id:   sender_id,
 		receiver_id: receiver_id,
 		messageType: message_type,

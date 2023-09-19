@@ -5,19 +5,25 @@ import (
 
 	"github.com/Inalegwu/Clipsync/data"
 	"github.com/Inalegwu/Clipsync/message"
+	"github.com/google/uuid"
 )
 
 type Node struct {
-	id          string
+	Id          uuid.UUID
 	connections []string
 	data        data.Data
 }
 
 func New() Node {
+	id := uuid.New()
+
 	return Node{
-		id:          "1",
+		Id:          id,
 		connections: make([]string, 5),
 	}
+}
+
+func (n *Node) HandleStream() {
 }
 
 func (n *Node) handleMessage(message message.Message) {
@@ -26,8 +32,8 @@ func (n *Node) handleMessage(message message.Message) {
 	fmt.Println(messageAsJson)
 }
 
-func (n *Node) sendMessage(message_type int, receiver_id string) {
-	message := message.New(n.id, receiver_id, message_type)
+func (n *Node) sendMessage(message_type int, receiver_id uuid.UUID) {
+	message := message.New(n.Id, receiver_id, message_type)
 
 	message.ToJson()
 }
