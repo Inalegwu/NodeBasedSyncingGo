@@ -1,7 +1,6 @@
 package node
 
 import (
-	"bufio"
 	"fmt"
 	"log"
 	"net"
@@ -15,6 +14,7 @@ type Node struct {
 	Id          uuid.UUID
 	connections []string
 	data        data.Data
+	nodeType    int
 }
 
 func New() Node {
@@ -45,29 +45,31 @@ func (n *Node) sendMessage(message_type int, receiver_id uuid.UUID) {
 }
 
 func (n *Node) AsServer() {
-	log.Printf("Server Node with id %s started", n.Id)
-	conn, err := net.Listen("tcp", "127.0.0.1:8080")
+	n.nodeType = 0
+	log.Printf("Server Node with id %s started , nodeType is %v", n.Id, n.nodeType)
+
+	listener, err := net.Listen("tcp", "127.0.0.1:8080")
 
 	n.handleError(err)
 
-	server, _ := conn.Accept()
-
 	for {
-		message, _ := bufio.NewReader(server).ReadString('\n')
-
-		server.Write([]byte(message + "\n"))
+		if conn, err := listener.Accept(); err == nil {
+			n.HandleStream(conn)
+		}
 	}
 }
 
 func (n *Node) AsClient() {
-	log.Printf("Client Node with id %s started", n.Id)
+	n.nodeType = 1
+	log.Printf("Client Node with id %s started , Node type is %v", n.Id, n.nodeType)
+
 	conn, err := net.Dial("tcp", "127.0.0.1:8080")
 
 	n.handleError(err)
 
 	defer conn.Close()
 
-	fmt.Println(conn)
+	n.HandleStream(conn)
 }
 
 func (n *Node) handleError(err error) {
